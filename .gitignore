@@ -58,3 +58,5 @@ Temporary Items
 *.dep
 ..gitignore.un~
 *.gitignore~
+Project/JLinkLog.txt
+Project/F103.uvguix.zhhq9
