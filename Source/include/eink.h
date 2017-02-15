@@ -1,5 +1,5 @@
-#ifndef EINK_H
-#define EINK_H
+#ifndef X_EINK_H
+#define X_EINK_H
 
 #include <FreeRTOS.h>
 #include <task.h>
