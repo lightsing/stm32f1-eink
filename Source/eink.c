@@ -105,57 +105,42 @@ void EPD_W21_Init(void){
 	DELAY_mS(1000);
 }
 
+void SPI4W_sendData(unsigned char data){
+	for(short scnt=0; scnt<8; ++scnt){
+		if(data&0x80){
+			SDA_H;
+		}else{
+			SDA_L;
+        }
+		DELAY_100nS(10);
+		SCLK_H;
+		DELAY_100nS(10);
+		SCLK_L;
+		data<<=1;
+		DELAY_100nS(10);
+	}
+}
 
 void SPI4W_WRITECOM(unsigned char INIT_COM){
-	unsigned char TEMPCOM;
-	unsigned char scnt;
-	TEMPCOM=INIT_COM;
 	nCS_H;
 	nCS_L;
 	SCLK_L;
 	nDC_L;
-	for(scnt=0;scnt<8;scnt++){
-		if(TEMPCOM&0x80){
-			SDA_H;
-		}else{
-			SDA_L;
-        }
-		DELAY_100nS(10);
-		SCLK_H;
-		DELAY_100nS(10);
-		SCLK_L;
-		TEMPCOM=TEMPCOM<<1;
-		DELAY_100nS(10);
-	}
+	SPI4W_sendData(INIT_COM);
 	nCS_H; 
 }
 
 void SPI4W_WRITEDATA(unsigned char INIT_DATA){
-	unsigned char TEMPCOM;
-	unsigned char scnt;
-	TEMPCOM=INIT_DATA;
 	nCS_H;
 	nCS_L;
 	SCLK_L;
 	nDC_H;
-	for(scnt=0;scnt<8;scnt++){
-		if(TEMPCOM&0x80){
-			SDA_H;
-		}else{
-			SDA_L;
-        }
-		DELAY_100nS(10);
-		SCLK_H;
-		DELAY_100nS(10);
-		SCLK_L;
-		TEMPCOM=TEMPCOM<<1;
-		DELAY_100nS(10);
-	}
+	SPI4W_sendData(INIT_DATA);
 	nCS_H;
 }
 
 void MCU_write_flash(unsigned char command){
-	for (short i=0;i<8;i++){
+	for(short i=0; i<8; ++i){
 		SCLK_L;
 		if (command&0x80){
 			SDA_H;
@@ -170,19 +155,7 @@ void MCU_write_flash(unsigned char command){
 
 void displayImage(const unsigned char *Image){
     EPD_W21_Init();
-//	if(k==0){
-/**********************************release flash sleep**********************************/
-/**	SPI4W_WRITECOM(0X65);			//FLASH CONTROL
-    SPI4W_WRITEDATA(0x01);
-
-    nCS_L;					//MFCSB À­µÍ
-    MCU_write_flash(0xAB);
-    nCS_H;					//MFCSB À­¸ß
-
-    SPI4W_WRITECOM(0X65);			//FLASH CONTROL
-    SPI4W_WRITEDATA(0x00);**/
-/**********************************release flash sleep**********************************/	
-    //}
+    
     SPI4W_WRITECOM(0x01); 
     SPI4W_WRITEDATA (0x37);	    //POWER SETTING
     SPI4W_WRITEDATA (0x00);
@@ -224,7 +197,6 @@ void displayImage(const unsigned char *Image){
     
     
     transferImage(Image);
-    //LED2_OFF;
     
     SPI4W_WRITECOM(0x04);	 	    //POWER ON	
 
@@ -258,7 +230,7 @@ void transferImage(const unsigned char *Image){
 	unsigned char temp1, temp2 = 0;
 	
 	SPI4W_WRITECOM(0x10); // Start the transfer
-	for(long i=0; i<30720;++i){
+	for(int i=0; i<30720;++i){
 		temp1 = Image[i];
 		for(int j=0;j<8;++j){
 			if(temp1&0x80){
@@ -277,10 +249,5 @@ void transferImage(const unsigned char *Image){
 			temp1 <<= 1;
 			SPI4W_WRITEDATA(temp2);
 		}
- //       if((i/640)%2!=0){
- //           LED2_OFF;
- //      }else{
- //           LED2_ON;
- //       }
 	}
 }

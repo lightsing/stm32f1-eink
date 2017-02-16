@@ -11,15 +11,15 @@
 void vTaskDisplayImage(void *p);
 void vTaskBlinkLED(void *p);
 
-int main(void)
-{
+int main(void){
 	//Init
     RCCInit();
 	GPIOInit();
     LEDInit();
     
-    //xTaskCreate(vTaskDisplayImage, (const char*)"Display Image", 128, NULL, 2, NULL);
-    xTaskCreate(vTaskBlinkLED, (const char*)"IDLE", 128, NULL, 1, NULL);
+    xTaskCreate(vTaskDisplayImage, (const char*)"Display Image", 128, NULL, 2, NULL);
+    //Use led blink represent IDLE
+    xTaskCreate(vTaskBlinkLED, (const char*)"IDLE", 32, NULL, 1, NULL);
     
 	vTaskStartScheduler();
 	return 0;
@@ -40,11 +40,7 @@ void offAllLED(void){
 
 void vTaskBlinkLED(void *p){
     for(;;){
-        //GPIOC->ODR ^= GPIO_Pin_13;
-        //AllLEDon();
-        GPIO_SetBits(GPIOC, GPIO_Pin_13);
-        vTaskDelay(100/portTICK_RATE_MS);
-        GPIO_ResetBits(GPIOC, GPIO_Pin_13);
-        //AllLEDoff();
+        GPIOC->ODR ^= GPIO_Pin_13;
+        DELAY_mS(100);
     }
 }
